@@ -1,40 +1,110 @@
-import React from 'react';
+import '@fontsource/raleway/400.css';
+import '@fontsource/open-sans/700.css';
+
+import React, { useState } from 'react';
 import {
   ChakraProvider,
+  Center,
   Box,
+  Heading,
   Text,
-  Link,
-  VStack,
-  Code,
-  Grid,
-  theme,
+  Input,
+  Progress,
+  Button,
 } from '@chakra-ui/react';
-import { ColorModeSwitcher } from './ColorModeSwitcher';
-import { Logo } from './Logo';
+import theme from './theme';
+import isFileTypeImage from './utils/isFileTypeImage';
+// import { ColorModeSwitcher } from './ColorModeSwitcher';
 
 function App() {
+  const [fileToBeUpload, setFileToBeUpload] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const handleFileChange = event => {
+    const theFile = event.currentTarget.files[0];
+    return isFileTypeImage(theFile) && setFileToBeUpload(theFile);
+  };
+
+  const uploadToServer = async (chunk, fileName) => {
+    return await fetch('http://localhost:8090/upload', {
+      method: 'POST',
+      headers: {
+        'file-name': fileName,
+        'content-type': 'application/octet-stream',
+        'content-length': chunk.length,
+      },
+      body: chunk,
+    })
+      .then(data => data.text())
+      .then(text => text);
+  };
+
+  const loadFileToMemory = file => {
+    const fileReader = new FileReader();
+    fileReader.readAsArrayBuffer(file);
+    fileReader.onload = async function (e) {
+      const CHUNK_SIZE = 50000;
+      const TOTAL_CHUCKS = e.target.result.byteLength / CHUNK_SIZE + 1;
+      const fileName = Math.random() * 1000 + file.name;
+
+      for (let i = 0; i < TOTAL_CHUCKS; ++i) {
+        const chunkToUpload = e.target.result.slice(
+          i * CHUNK_SIZE,
+          i * CHUNK_SIZE + CHUNK_SIZE
+        );
+
+        const response = await uploadToServer(chunkToUpload, fileName);
+        // console.log(response);
+      }
+    };
+  };
+
+  const uploading = () => {
+    if (!fileToBeUpload) return;
+    loadFileToMemory(fileToBeUpload);
+    setIsUploading(true);
+  };
+
   return (
     <ChakraProvider theme={theme}>
-      <Box textAlign="center" fontSize="xl">
-        <Grid minH="100vh" p={3}>
-          <ColorModeSwitcher justifySelf="flex-end" />
-          <VStack spacing={8}>
-            <Logo h="40vmin" pointerEvents="none" />
-            <Text>
-              Edit <Code fontSize="xl">src/App.js</Code> and save to reload.
-            </Text>
-            <Link
-              color="teal.500"
-              href="https://chakra-ui.com"
-              fontSize="2xl"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learn Chakra
-            </Link>
-          </VStack>
-        </Grid>
-      </Box>
+      {/* <ColorModeSwitcher /> */}
+      <Center h="100vh" color="white">
+        <Box>
+          <Heading textAlign="center" marginBottom="1.5rem">
+            Image Uploader
+          </Heading>
+          {isUploading && <Progress size="xs" isIndeterminate />}
+          {!isUploading && (
+            <Box maxWidth="container.sm">
+              <Center
+                h="200px"
+                border="1px"
+                onDrop={event => {
+                  event.preventDefault();
+                  const theFile = event.dataTransfer.files[0];
+
+                  if (isFileTypeImage(theFile)) {
+                    setFileToBeUpload(theFile);
+                    uploading();
+                  } else {
+                    alert('Please drag only image files!!');
+                  }
+                }}
+                onDragOver={event => {
+                  event.preventDefault();
+                }}
+              >
+                <Text>Drag and Drop Image</Text>
+                <Input
+                  type="file"
+                  onChange={handleFileChange}
+                  accept="image/*"
+                />
+                <Button onClick={uploading}>Upload</Button>
+              </Center>
+            </Box>
+          )}
+        </Box>
+      </Center>
     </ChakraProvider>
   );
 }
