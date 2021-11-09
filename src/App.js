@@ -11,6 +11,8 @@ import {
   Input,
   Progress,
   Button,
+  Image,
+  VStack,
 } from '@chakra-ui/react';
 import theme from './theme';
 import isFileTypeImage from './utils/isFileTypeImage';
@@ -19,6 +21,8 @@ import isFileTypeImage from './utils/isFileTypeImage';
 function App() {
   const [fileToBeUpload, setFileToBeUpload] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [publicFileURL, setPublicFileURL] = useState('');
+
   const handleFileChange = event => {
     const theFile = event.currentTarget.files[0];
     return isFileTypeImage(theFile) && setFileToBeUpload(theFile);
@@ -58,10 +62,29 @@ function App() {
     };
   };
 
-  const uploading = () => {
+  const uploading = async () => {
     if (!fileToBeUpload) return;
-    loadFileToMemory(fileToBeUpload);
     setIsUploading(true);
+    const form = new FormData();
+    form.append('files', fileToBeUpload, fileToBeUpload.name);
+
+    try {
+      let response = await fetch('http://localhost:8090/upload', {
+        method: 'POST',
+        body: form,
+      })
+        .then(res => {
+          return res.json();
+        })
+        .then(result => result);
+
+      setPublicFileURL(response.publicFileURL);
+    } catch (error) {
+      alert('Internal Server Error');
+      console.log('Internal Server Error');
+      setFileToBeUpload(null);
+    }
+    setIsUploading(false);
   };
 
   return (
@@ -73,11 +96,13 @@ function App() {
             Image Uploader
           </Heading>
           {isUploading && <Progress size="xs" isIndeterminate />}
-          {!isUploading && (
+          {!isUploading && !publicFileURL && (
             <Box maxWidth="container.sm">
-              <Center
+              <VStack
                 h="200px"
                 border="1px"
+                align="center"
+                justify="space-between"
                 onDrop={event => {
                   event.preventDefault();
                   const theFile = event.dataTransfer.files[0];
@@ -100,8 +125,19 @@ function App() {
                   accept="image/*"
                 />
                 <Button onClick={uploading}>Upload</Button>
-              </Center>
+              </VStack>
             </Box>
+          )}
+          {publicFileURL && (
+            <VStack align="center">
+              <Image
+                src={publicFileURL}
+                alt="Segun Adebayo"
+                boxSize="200px"
+                objectFit="cover"
+              />
+              <a href={publicFileURL}>{publicFileURL}</a>
+            </VStack>
           )}
         </Box>
       </Center>
