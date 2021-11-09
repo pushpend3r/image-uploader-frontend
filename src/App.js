@@ -28,39 +28,39 @@ function App() {
     return isFileTypeImage(theFile) && setFileToBeUpload(theFile);
   };
 
-  const uploadToServer = async (chunk, fileName) => {
-    return await fetch('http://localhost:8090/upload', {
-      method: 'POST',
-      headers: {
-        'file-name': fileName,
-        'content-type': 'application/octet-stream',
-        'content-length': chunk.length,
-      },
-      body: chunk,
-    })
-      .then(data => data.text())
-      .then(text => text);
-  };
+  // const uploadToServer = async (chunk, fileName) => {
+  //   return await fetch('http://localhost:8090/upload', {
+  //     method: 'POST',
+  //     headers: {
+  //       'file-name': fileName,
+  //       'content-type': 'application/octet-stream',
+  //       'content-length': chunk.length,
+  //     },
+  //     body: chunk,
+  //   })
+  //     .then(data => data.text())
+  //     .then(text => text);
+  // };
 
-  const loadFileToMemory = file => {
-    const fileReader = new FileReader();
-    fileReader.readAsArrayBuffer(file);
-    fileReader.onload = async function (e) {
-      const CHUNK_SIZE = 50000;
-      const TOTAL_CHUCKS = e.target.result.byteLength / CHUNK_SIZE + 1;
-      const fileName = Math.random() * 1000 + file.name;
+  // const loadFileToMemory = file => {
+  //   const fileReader = new FileReader();
+  //   fileReader.readAsArrayBuffer(file);
+  //   fileReader.onload = async function (e) {
+  //     const CHUNK_SIZE = 50000;
+  //     const TOTAL_CHUCKS = e.target.result.byteLength / CHUNK_SIZE + 1;
+  //     const fileName = Math.random() * 1000 + file.name;
 
-      for (let i = 0; i < TOTAL_CHUCKS; ++i) {
-        const chunkToUpload = e.target.result.slice(
-          i * CHUNK_SIZE,
-          i * CHUNK_SIZE + CHUNK_SIZE
-        );
+  //     for (let i = 0; i < TOTAL_CHUCKS; ++i) {
+  //       const chunkToUpload = e.target.result.slice(
+  //         i * CHUNK_SIZE,
+  //         i * CHUNK_SIZE + CHUNK_SIZE
+  //       );
 
-        const response = await uploadToServer(chunkToUpload, fileName);
-        // console.log(response);
-      }
-    };
-  };
+  //       const response = await uploadToServer(chunkToUpload, fileName);
+  //       // console.log(response);
+  //     }
+  //   };
+  // };
 
   const uploading = async () => {
     if (!fileToBeUpload) return;
