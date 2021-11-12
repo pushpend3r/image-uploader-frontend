@@ -23,6 +23,8 @@ function App() {
   const [isUploading, setIsUploading] = useState(false);
   const [publicFileURL, setPublicFileURL] = useState('');
 
+  console.log(process.env.REACT_APP_BACKEND_URL);
+
   const handleFileChange = event => {
     const theFile = event.currentTarget.files[0];
     return isFileTypeImage(theFile) && setFileToBeUpload(theFile);
@@ -69,10 +71,13 @@ function App() {
     form.append('files', fileToBeUpload, fileToBeUpload.name);
 
     try {
-      let response = await fetch(`${process.env.BACKEND_URL}/upload`, {
-        method: 'POST',
-        body: form,
-      })
+      let response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/upload`,
+        {
+          method: 'POST',
+          body: form,
+        }
+      )
         .then(res => {
           return res.json();
         })
