@@ -18,11 +18,6 @@ import theme from './theme';
 import isFileTypeImage from './utils/isFileTypeImage';
 // import { ColorModeSwitcher } from './ColorModeSwitcher';
 
-const backendURL =
-  process.env.NODE_ENV === 'prod'
-    ? 'https://my-image-uploader-backend.herokuapp.com/upload'
-    : 'http://localhost:8090/upload';
-
 function App() {
   const [fileToBeUpload, setFileToBeUpload] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -74,7 +69,7 @@ function App() {
     form.append('files', fileToBeUpload, fileToBeUpload.name);
 
     try {
-      let response = await fetch(backendURL, {
+      let response = await fetch(`${process.env.BACKEND_URL}/upload`, {
         method: 'POST',
         body: form,
       })
