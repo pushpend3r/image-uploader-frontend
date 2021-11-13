@@ -12,7 +12,8 @@ import {
   Progress,
   Button,
   Image,
-  VStack,
+  Flex,
+  Spacer,
 } from '@chakra-ui/react';
 import theme from './theme';
 import isFileTypeImage from './utils/isFileTypeImage';
@@ -103,11 +104,13 @@ function App() {
           {isUploading && <Progress size="xs" isIndeterminate />}
           {!isUploading && !publicFileURL && (
             <Box maxWidth="container.sm">
-              <VStack
-                h="200px"
+              <Flex
+                h="300px"
                 border="1px"
-                align="center"
-                justify="space-between"
+                direction="column"
+                alignItems="center"
+                padding="0.5rem"
+                borderRadius="2px"
                 onDrop={event => {
                   event.preventDefault();
                   const theFile = event.dataTransfer.files[0];
@@ -123,26 +126,49 @@ function App() {
                   event.preventDefault();
                 }}
               >
-                <Text>Drag and Drop Image</Text>
-                <Input
+                <Center flex="1">
+                  <Text>Drag and Drop Image</Text>
+                </Center>
+                <input
                   type="file"
                   onChange={handleFileChange}
                   accept="image/*"
+                  style={{
+                    border: '1px solid white',
+                    borderRadius: '2px',
+                    padding: '0.5rem',
+                  }}
                 />
-                <Button onClick={uploading}>Upload</Button>
-              </VStack>
+                <Button onClick={uploading} marginTop="1rem">
+                  Upload
+                </Button>
+              </Flex>
             </Box>
           )}
           {publicFileURL && (
-            <VStack align="center">
+            <Flex
+              direction="column"
+              alignItems="center"
+              padding="0.5rem"
+              borderRadius="2px"
+            >
               <Image
                 src={publicFileURL}
                 alt="Segun Adebayo"
-                boxSize="200px"
+                boxSize="300px"
                 objectFit="cover"
               />
-              <a href={publicFileURL}>{publicFileURL}</a>
-            </VStack>
+              <a
+                href={publicFileURL}
+                style={{
+                  marginTop: '1rem',
+                  fontWeight: 'bolder',
+                  fontSize: '1.25rem',
+                }}
+              >
+                {publicFileURL}
+              </a>
+            </Flex>
           )}
         </Box>
       </Center>
