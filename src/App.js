@@ -8,12 +8,10 @@ import {
   Box,
   Heading,
   Text,
-  Input,
   Progress,
   Button,
   Image,
   Flex,
-  Spacer,
 } from '@chakra-ui/react';
 import theme from './theme';
 import isFileTypeImage from './utils/isFileTypeImage';
